@@ -1,0 +1,15 @@
+AI_HARNESS.md
+install_to_krita.sh
+krita_3d_pose/__pycache__/*
+pose_engine/__pycache__/*
+pose_engine/gltf/__pycache__/*
+pose_engine/ik/__pycache__/*
+pose_engine/renderer/__pycache__/*
+pose_engine/ui/__pycache__/*
+__pycache__/*
+/OLD KRITA PLUGIN/*
+/poses/*
+*.glb
+/plans/*
+AI_AGENT_GUIDE.md
+codebase_research.md
