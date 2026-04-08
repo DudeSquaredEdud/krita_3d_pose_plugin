@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=krita_3d_pose
+X-Python-2-Compatible=false
+Name=3D Model Poser
+Name[en]=3D Model Poser
+Comment=Load, pose and position 3D models as reference in Krita with multi-model support
+Comment[en]=Load, pose and position 3D models as reference in Krita with multi-model support

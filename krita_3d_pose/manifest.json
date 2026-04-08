@@ -1,0 +1,43 @@
+{
+    "id": "pykrita_3d_poser",
+    "name": "3D Model Poser",
+    "version": "2.0.0",
+    "description": "A plugin for Krita that enables 3D character posing with skeletal animation support, inverse kinematics, transform gizmos, and multi-model scene management.",
+    "author": "Krita 3D Poser Plugin",
+    "email": "",
+    "license": "MIT",
+    "website": "",
+    "type": "docker",
+    "keywords": [
+        "3D",
+        "posing",
+        "skeletal animation",
+        "IK",
+        "inverse kinematics",
+        "GLB",
+        "glTF",
+        "multi-model",
+        "gizmo"
+    ],
+    "dependencies": {
+        "krita": ">=5.0.0",
+        "python": ">=3.8"
+    },
+    "optional_dependencies": {
+        "PyQt5": ">=5.15.0",
+        "PyOpenGL": ">=3.1.0",
+        "numpy": ">=1.20.0"
+    },
+    "files": [
+        "__init__.py",
+        "multi_model_docker.py"
+    ],
+    "dockers": [
+        {
+            "id": "krita_3d_editor",
+            "name": "3D Editor",
+            "position": "right",
+            "enabled": true
+        }
+    ]
+}

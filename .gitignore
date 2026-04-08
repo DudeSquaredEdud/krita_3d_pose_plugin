@@ -1,0 +1,20 @@
+krita_3d_pose/__pycache__/*
+pose_engine/__pycache__/*
+pose_engine/gltf/__pycache__/*
+pose_engine/ik/__pycache__/*
+pose_engine/renderer/__pycache__/*
+pose_engine/ui/__pycache__/*
+__pycache__/*
+pose_engine/settings/__pycache__/*
+pose_engine/camera/__pycache__/*
+
+/OLD KRITA PLUGIN/*
+/poses/*
+*.glb
+/plans/*
+docs/things_we_shouldnt_program.md
+.gitignore
+*/__pycache__/*
+.gitignore
+docs/*
+.roo/*
