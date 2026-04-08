@@ -30,19 +30,12 @@
     },
     "files": [
         "__init__.py",
-        "docker_panel.py",
         "multi_model_docker.py"
     ],
     "dockers": [
         {
-            "id": "krita_3d_pose",
-            "name": "3D Pose Editor",
-            "position": "right",
-            "enabled": true
-        },
-        {
-            "id": "krita_3d_multi_model",
-            "name": "3D Multi-Model Editor",
+            "id": "krita_3d_editor",
+            "name": "3D Editor",
             "position": "right",
             "enabled": true
         }

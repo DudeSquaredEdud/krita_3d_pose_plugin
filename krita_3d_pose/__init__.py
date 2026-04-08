@@ -80,7 +80,6 @@ except ImportError as e:
 
 # Import plugin components
 try:
-    from .docker_panel import Krita3DPoserDocker
     from .multi_model_docker import KritaMultiModelDocker
     log_message("Plugin components imported successfully")
 except ImportError as e:
@@ -88,8 +87,7 @@ except ImportError as e:
     log_message(traceback.format_exc(), "ERROR")
     raise
 
-DOCKER_ID = "krita_3d_pose"
-MULTI_DOCKER_ID = "krita_3d_multi_model"
+DOCKER_ID = "krita_3d_editor"
 
 
 class Krita3DPoserExtension(Extension):
@@ -115,14 +113,9 @@ _app = Krita.instance()
 _app.addExtension(Krita3DPoserExtension(_app))
 log_message("Extension registered")
 
-# Add dock widget factories
+# Add dock widget factory
 _app.addDockWidgetFactory(
-    DockWidgetFactory(DOCKER_ID, DockWidgetFactoryBase.DockRight, Krita3DPoserDocker)
+    DockWidgetFactory(DOCKER_ID, DockWidgetFactoryBase.DockRight, KritaMultiModelDocker)
 )
-log_message("Single-model docker registered")
-
-_app.addDockWidgetFactory(
-    DockWidgetFactory(MULTI_DOCKER_ID, DockWidgetFactoryBase.DockRight, KritaMultiModelDocker)
-)
-log_message("Multi-model docker registered")
+log_message("3D Editor docker registered")
 log_message("Plugin initialization complete!")

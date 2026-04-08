@@ -101,14 +101,14 @@ class RotationGizmo:
         axis = gizmo.hit_test(mouse_pos, position, scale, view, proj, viewport)
     """
     
-    # Default colors for each axis
-    COLOR_X = (1.0, 0.2, 0.2)  # Red
-    COLOR_Y = (0.2, 1.0, 0.2)  # Green
-    COLOR_Z = (0.2, 0.2, 1.0)  # Blue
-    
+    # Default colors for each axis (matching UI color scheme)
+    COLOR_X = (0.91, 0.30, 0.24)  # #E74C3C - Red (matching Colors.GIZMO_X)
+    COLOR_Y = (0.15, 0.68, 0.38)  # #27AE60 - Green (matching Colors.GIZMO_Y)
+    COLOR_Z = (0.20, 0.60, 0.86)  # #3498DB - Blue (matching Colors.GIZMO_Z)
+
     # Highlight colors
-    COLOR_HOVER = (1.0, 1.0, 0.2)  # Yellow
-    COLOR_DRAG = (1.0, 0.8, 0.2)   # Orange-yellow
+    COLOR_HOVER = (0.95, 0.77, 0.06)  # #F1C40F - Yellow (matching Colors.GIZMO_HOVER)
+    COLOR_DRAG = (0.95, 0.61, 0.07)   # #F39C12 - Orange (matching Colors.GIZMO_DRAG)
     
     def __init__(self, radius: float = 1.0, segments: int = 64, tube_radius: float = 0.05, tube_segments: int = 16):
         """

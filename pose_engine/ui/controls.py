@@ -3,21 +3,28 @@ Bone Controls - UI for Bone Manipulation
 =======================================
 
 Provides controls for selecting and manipulating bones.
+Enhanced with modern styling and visual feedback.
 """
 
 from typing import Optional, List, Callable
 
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QSlider, QDoubleSpinBox, QComboBox, QPushButton,
-    QGroupBox, QTreeWidget, QTreeWidgetItem
+    QGroupBox, QTreeWidget, QTreeWidgetItem, QFrame,
+    QSizePolicy
 )
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QFont, QColor
 
 from ..vec3 import Vec3
 from ..quat import Quat
 from ..skeleton import Skeleton
 from ..bone import Bone
+from .styles import (
+    Colors, StyleSheets, Typography, BoneStateIndicator,
+    apply_style, get_bone_color
+)
 
 
 class BoneControls(QWidget):
@@ -49,131 +56,174 @@ class BoneControls(QWidget):
         self._setup_ui()
     
     def _setup_ui(self) -> None:
-        """Set up the UI."""
+        """Set up the UI with modern styling."""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(8)
         
-        # Bone tree
-        tree_group = QGroupBox("Bones")
+        # Apply main widget style
+        self.setStyleSheet(StyleSheets.MAIN_WIDGET)
+
+        # === Bone Tree Section ===
+        tree_group = QGroupBox("🦴 Bones")
+        tree_group.setStyleSheet(StyleSheets.GROUP_BOX)
         tree_layout = QVBoxLayout(tree_group)
-        
+        tree_layout.setContentsMargins(8, 16, 8, 8)
+        tree_layout.setSpacing(6)
+
         self._bone_tree = QTreeWidget()
         self._bone_tree.setHeaderLabel("Bone Hierarchy")
+        self._bone_tree.setStyleSheet(StyleSheets.TREE_WIDGET)
         self._bone_tree.currentItemChanged.connect(self._on_tree_selection_changed)
+        self._bone_tree.itemDoubleClicked.connect(self._on_bone_double_clicked)
         tree_layout.addWidget(self._bone_tree)
-        
+
         layout.addWidget(tree_group)
-        
-        # Rotation controls
-        rotation_group = QGroupBox("Rotation (Degrees)")
+
+        # === Rotation Controls Section ===
+        rotation_group = QGroupBox("🔄 Rotation (Degrees)")
+        rotation_group.setStyleSheet(StyleSheets.GROUP_BOX)
         rotation_layout = QVBoxLayout(rotation_group)
-        
-        # X rotation
+        rotation_layout.setContentsMargins(8, 16, 8, 8)
+        rotation_layout.setSpacing(6)
+
+        # X rotation with axis-colored slider
         x_layout = QHBoxLayout()
-        x_layout.addWidget(QLabel("X:"))
+        x_label = QLabel("X")
+        x_label.setStyleSheet(f"color: {Colors.GIZMO_X}; font-weight: bold; min-width: 20px;")
+        x_layout.addWidget(x_label)
         self._x_slider = QSlider(Qt.Horizontal)
         self._x_slider.setRange(-180, 180)
+        self._x_slider.setStyleSheet(StyleSheets.SLIDER_X)
         self._x_slider.valueChanged.connect(self._on_rotation_changed)
         x_layout.addWidget(self._x_slider)
         self._x_spin = QDoubleSpinBox()
         self._x_spin.setRange(-180, 180)
         self._x_spin.setDecimals(1)
+        self._x_spin.setStyleSheet(StyleSheets.SPIN_BOX)
         self._x_spin.valueChanged.connect(self._on_x_spin_changed)
         x_layout.addWidget(self._x_spin)
         rotation_layout.addLayout(x_layout)
-        
-        # Y rotation
+
+        # Y rotation with axis-colored slider
         y_layout = QHBoxLayout()
-        y_layout.addWidget(QLabel("Y:"))
+        y_label = QLabel("Y")
+        y_label.setStyleSheet(f"color: {Colors.GIZMO_Y}; font-weight: bold; min-width: 20px;")
+        y_layout.addWidget(y_label)
         self._y_slider = QSlider(Qt.Horizontal)
         self._y_slider.setRange(-180, 180)
+        self._y_slider.setStyleSheet(StyleSheets.SLIDER_Y)
         self._y_slider.valueChanged.connect(self._on_rotation_changed)
         y_layout.addWidget(self._y_slider)
         self._y_spin = QDoubleSpinBox()
         self._y_spin.setRange(-180, 180)
         self._y_spin.setDecimals(1)
+        self._y_spin.setStyleSheet(StyleSheets.SPIN_BOX)
         self._y_spin.valueChanged.connect(self._on_y_spin_changed)
         y_layout.addWidget(self._y_spin)
         rotation_layout.addLayout(y_layout)
-        
-        # Z rotation
+
+        # Z rotation with axis-colored slider
         z_layout = QHBoxLayout()
-        z_layout.addWidget(QLabel("Z:"))
+        z_label = QLabel("Z")
+        z_label.setStyleSheet(f"color: {Colors.GIZMO_Z}; font-weight: bold; min-width: 20px;")
+        z_layout.addWidget(z_label)
         self._z_slider = QSlider(Qt.Horizontal)
         self._z_slider.setRange(-180, 180)
+        self._z_slider.setStyleSheet(StyleSheets.SLIDER_Z)
         self._z_slider.valueChanged.connect(self._on_rotation_changed)
         z_layout.addWidget(self._z_slider)
         self._z_spin = QDoubleSpinBox()
         self._z_spin.setRange(-180, 180)
         self._z_spin.setDecimals(1)
+        self._z_spin.setStyleSheet(StyleSheets.SPIN_BOX)
         self._z_spin.valueChanged.connect(self._on_z_spin_changed)
         z_layout.addWidget(self._z_spin)
         rotation_layout.addLayout(z_layout)
-        
+
         # Reset button
-        reset_btn = QPushButton("Reset Rotation")
+        reset_btn = QPushButton("↩ Reset Rotation")
+        reset_btn.setStyleSheet(StyleSheets.BUTTON_SECONDARY)
         reset_btn.clicked.connect(self._on_reset_rotation)
         rotation_layout.addWidget(reset_btn)
-        
-        layout.addWidget(rotation_group)
-        
-        # Gizmo mode toggle
-        gizmo_group = QGroupBox("Gizmo Mode")
-        gizmo_layout = QHBoxLayout(gizmo_group)
 
-        self._rotation_btn = QPushButton("Rotate")
+        layout.addWidget(rotation_group)
+
+        # === Gizmo Mode Section ===
+        gizmo_group = QGroupBox("🎯 Gizmo Mode")
+        gizmo_group.setStyleSheet(StyleSheets.GROUP_BOX)
+        gizmo_layout = QHBoxLayout(gizmo_group)
+        gizmo_layout.setContentsMargins(8, 16, 8, 8)
+        gizmo_layout.setSpacing(6)
+
+        self._rotation_btn = QPushButton("R Rotate")
         self._rotation_btn.setCheckable(True)
         self._rotation_btn.setChecked(True)
+        self._rotation_btn.setStyleSheet(StyleSheets.BUTTON_TOOL)
         self._rotation_btn.clicked.connect(lambda: self._set_gizmo_mode("rotation"))
         gizmo_layout.addWidget(self._rotation_btn)
 
-        self._movement_btn = QPushButton("Move")
+        self._movement_btn = QPushButton("G Move")
         self._movement_btn.setCheckable(True)
+        self._movement_btn.setStyleSheet(StyleSheets.BUTTON_TOOL)
         self._movement_btn.clicked.connect(lambda: self._set_gizmo_mode("movement"))
         gizmo_layout.addWidget(self._movement_btn)
 
-        self._scale_btn = QPushButton("Scale")
+        self._scale_btn = QPushButton("S Scale")
         self._scale_btn.setCheckable(True)
+        self._scale_btn.setStyleSheet(StyleSheets.BUTTON_TOOL)
         self._scale_btn.clicked.connect(lambda: self._set_gizmo_mode("scale"))
         gizmo_layout.addWidget(self._scale_btn)
 
         layout.addWidget(gizmo_group)
 
-        # IK controls
-        ik_group = QGroupBox("IK Target")
+        # === IK Controls Section ===
+        ik_group = QGroupBox("🎯 IK Target")
+        ik_group.setStyleSheet(StyleSheets.GROUP_BOX)
         ik_layout = QVBoxLayout(ik_group)
-        
+        ik_layout.setContentsMargins(8, 16, 8, 8)
+        ik_layout.setSpacing(6)
+
         # IK bone selector
         ik_selector_layout = QHBoxLayout()
-        ik_selector_layout.addWidget(QLabel("End Effector:"))
+        ik_selector_label = QLabel("End Effector:")
+        ik_selector_label.setStyleSheet(StyleSheets.LABEL)
+        ik_selector_layout.addWidget(ik_selector_label)
         self._ik_bone_combo = QComboBox()
+        self._ik_bone_combo.setStyleSheet(StyleSheets.COMBO_BOX)
         ik_selector_layout.addWidget(self._ik_bone_combo)
         ik_layout.addLayout(ik_selector_layout)
-        
+
         # IK target position
         pos_layout = QHBoxLayout()
-        pos_layout.addWidget(QLabel("Target:"))
+        pos_label = QLabel("Target:")
+        pos_label.setStyleSheet(StyleSheets.LABEL)
+        pos_layout.addWidget(pos_label)
         self._ik_x = QDoubleSpinBox()
         self._ik_x.setRange(-10, 10)
         self._ik_x.setDecimals(2)
+        self._ik_x.setStyleSheet(StyleSheets.SPIN_BOX)
         pos_layout.addWidget(self._ik_x)
         self._ik_y = QDoubleSpinBox()
         self._ik_y.setRange(-10, 10)
         self._ik_y.setDecimals(2)
+        self._ik_y.setStyleSheet(StyleSheets.SPIN_BOX)
         pos_layout.addWidget(self._ik_y)
         self._ik_z = QDoubleSpinBox()
         self._ik_z.setRange(-10, 10)
         self._ik_z.setDecimals(2)
+        self._ik_z.setStyleSheet(StyleSheets.SPIN_BOX)
         pos_layout.addWidget(self._ik_z)
         ik_layout.addLayout(pos_layout)
-        
+
         # Solve button
-        self._solve_btn = QPushButton("Solve IK")
+        self._solve_btn = QPushButton("🎯 Solve IK")
+        self._solve_btn.setStyleSheet(StyleSheets.BUTTON_PRIMARY)
         self._solve_btn.clicked.connect(self._on_solve_ik)
         ik_layout.addWidget(self._solve_btn)
-        
+
         layout.addWidget(ik_group)
-        
+
         # Stretch to fill space
         layout.addStretch()
     
@@ -207,17 +257,63 @@ class BoneControls(QWidget):
         self._bone_tree.expandAll()
     
     def _add_bone_to_tree(self, bone: Bone, parent_item: Optional[QTreeWidgetItem]) -> None:
-        """Add a bone and its children to the tree."""
-        item = QTreeWidgetItem([bone.name])
+        """Add a bone and its children to the tree with visual indicators."""
+        # Determine bone state for visual feedback
+        is_root = parent_item is None
+        is_leaf = len(bone.children) == 0
+        is_modified = self._is_bone_modified(bone)
+        
+        # Format bone name with state indicators
+        display_name = BoneStateIndicator.format_bone_name(
+            bone.name,
+            is_modified=is_modified,
+            is_root=is_root,
+            is_leaf=is_leaf
+        )
+        
+        item = QTreeWidgetItem([display_name])
         item.setData(0, Qt.UserRole, bone.name)
+        
+        # Set visual styling based on bone type
+        if is_root:
+            item.setForeground(0, QColor(Colors.BONE_ROOT))
+            item.setFont(0, Typography.HEADER)
+        elif is_leaf:
+            item.setForeground(0, QColor(Colors.BONE_LEAF))
+        elif is_modified:
+            item.setForeground(0, QColor(Colors.BONE_MODIFIED))
         
         if parent_item:
             parent_item.addChild(item)
         else:
             self._bone_tree.addTopLevelItem(item)
-        
+
         for child in bone.children:
             self._add_bone_to_tree(child, item)
+    
+    def _is_bone_modified(self, bone: Bone) -> bool:
+        """Check if a bone has been modified from its bind pose."""
+        # Check if the pose rotation differs from identity
+        pose_rot = bone.pose_transform.rotation
+        identity = Quat.identity()
+        # Consider modified if rotation differs by more than 0.01 radians
+        dot = abs(pose_rot.x * identity.x + pose_rot.y * identity.y +
+                  pose_rot.z * identity.z + pose_rot.w * identity.w)
+        return dot < 0.9999
+    
+    def _on_bone_double_clicked(self, item: QTreeWidgetItem, column: int) -> None:
+        """Handle double-click on bone - reset rotation."""
+        bone_name = item.data(0, Qt.UserRole)
+        if bone_name:
+            # Reset the bone rotation on double-click
+            rotation = Quat.identity()
+            self.bone_rotation_changed.emit(bone_name, rotation)
+            
+            # Update controls if this is the selected bone
+            if bone_name == self._selected_bone:
+                self._x_slider.setValue(0)
+                self._y_slider.setValue(0)
+                self._z_slider.setValue(0)
     
     def _update_ik_combo(self) -> None:
         """Update the IK bone combo box."""

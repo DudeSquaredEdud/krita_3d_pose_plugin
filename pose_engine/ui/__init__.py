@@ -2,7 +2,7 @@
 UI Module - Qt User Interface
 =============================
 
-Provides Qt-based UI components for the 3D pose editor.
+Provides Qt-based UI components for the 3D editor.
 """
 
 from .viewport import Viewport3D

@@ -1,8 +1,8 @@
 """
-Krita Multi-Model 3D Poser Docker Panel
-=======================================
+Krita 3D Editor Docker Panel
+==============================
 
-Multi-model UI panel for the Krita 3D pose plugin.
+Main UI panel for the Krita 3D editor plugin.
 Integrates the MultiViewport3D with Krita's docker system.
 Supports loading, posing, and managing multiple 3D models.
 """
@@ -29,7 +29,7 @@ for _path in [_pose_engine_dir, _parent_dir]:
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QFileDialog, QSplitter, QMessageBox, QGroupBox, QTreeWidget,
-    QTreeWidgetItem, QCheckBox, QListWidget, QListWidgetItem
+    QTreeWidgetItem, QCheckBox, QListWidget, QListWidgetItem, QTabWidget, QProgressBar
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QImage, QPainter
@@ -54,9 +54,9 @@ except ImportError as e:
 
 class KritaMultiModelDocker(DockWidget):
     """
-    Multi-model docker panel for the 3D pose plugin.
+    Main docker panel for the 3D editor plugin.
 
-    This provides a full multi-model editing experience within Krita,
+    This provides a full 3D model editing experience within Krita,
     allowing users to load, pose, and arrange multiple 3D models.
     """
 
@@ -64,7 +64,7 @@ class KritaMultiModelDocker(DockWidget):
         """Create the docker panel."""
         super().__init__()
 
-        self.setWindowTitle("3D Multi-Model Editor")
+        self.setWindowTitle("3D Editor")
 
         self._setup_ui()
 
@@ -80,7 +80,7 @@ class KritaMultiModelDocker(DockWidget):
         self._sync_timer.timeout.connect(self._do_sync)
 
     def _setup_ui(self) -> None:
-        """Set up the UI."""
+        """Set up the tabbed UI."""
         # Main widget
         main_widget = QWidget()
         self.setWidget(main_widget)
@@ -88,11 +88,18 @@ class KritaMultiModelDocker(DockWidget):
         layout = QHBoxLayout(main_widget)
         layout.setContentsMargins(5, 5, 5, 5)
 
-        # Left panel - controls
+        # Left panel - controls with tabs and bottom section
         left_panel = QWidget()
         left_layout = QVBoxLayout(left_panel)
         left_layout.setContentsMargins(5, 5, 5, 5)
 
+        # Tab widget for main controls
+        self._tab_widget = QTabWidget()
+        
+        # Tab 1: Models & Visibility
+        models_tab = QWidget()
+        models_tab_layout = QVBoxLayout(models_tab)
+        
         # Model management group
         models_group = QGroupBox("Models")
         models_layout = QVBoxLayout(models_group)
@@ -120,19 +127,7 @@ class KritaMultiModelDocker(DockWidget):
         self._model_tree.setMaximumHeight(120)
         models_layout.addWidget(self._model_tree)
 
-        left_layout.addWidget(models_group)
-
-        # Bone tree group
-        bone_group = QGroupBox("Bones")
-        bone_layout = QVBoxLayout(bone_group)
-
-        self._bone_tree = QTreeWidget()
-        self._bone_tree.setHeaderLabels(["Bone Hierarchy"])
-        self._bone_tree.itemClicked.connect(self._on_bone_tree_click)
-        self._bone_tree.setMaximumHeight(150)
-        bone_layout.addWidget(self._bone_tree)
-
-        left_layout.addWidget(bone_group)
+        models_tab_layout.addWidget(models_group)
 
         # Visibility controls
         vis_group = QGroupBox("Visibility")
@@ -158,7 +153,26 @@ class KritaMultiModelDocker(DockWidget):
         self._show_gizmo_cb.toggled.connect(self._on_toggle_gizmo)
         vis_layout.addWidget(self._show_gizmo_cb)
 
-        left_layout.addWidget(vis_group)
+        models_tab_layout.addWidget(vis_group)
+        models_tab_layout.addStretch()
+        
+        self._tab_widget.addTab(models_tab, "Models")
+
+        # Tab 2: Bones & Gizmo
+        bones_tab = QWidget()
+        bones_tab_layout = QVBoxLayout(bones_tab)
+        
+        # Bone tree group
+        bone_group = QGroupBox("Bones")
+        bone_layout = QVBoxLayout(bone_group)
+
+        self._bone_tree = QTreeWidget()
+        self._bone_tree.setHeaderLabels(["Bone Hierarchy"])
+        self._bone_tree.itemClicked.connect(self._on_bone_tree_click)
+        self._bone_tree.setMaximumHeight(150)
+        bone_layout.addWidget(self._bone_tree)
+
+        bones_tab_layout.addWidget(bone_group)
 
         # Gizmo mode controls
         gizmo_group = QGroupBox("Gizmo Mode")
@@ -191,19 +205,15 @@ class KritaMultiModelDocker(DockWidget):
         toggle_btn.clicked.connect(self._toggle_gizmo_mode)
         gizmo_layout.addWidget(toggle_btn)
 
-        left_layout.addWidget(gizmo_group)
-
-        # Layer Sync group (RIGHT UNDER GIZMO MODES!)
-        sync_group = QGroupBox("Layer Sync")
-        sync_layout = QVBoxLayout(sync_group)
+        bones_tab_layout.addWidget(gizmo_group)
+        bones_tab_layout.addStretch()
         
-        self._sync_btn = QPushButton("📷 Sync to Layer")
-        self._sync_btn.clicked.connect(self._on_sync_to_layer)
-        self._sync_btn.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; padding: 8px;")
-        sync_layout.addWidget(self._sync_btn)
-        
-        left_layout.addWidget(sync_group)
+        self._tab_widget.addTab(bones_tab, "Bones")
 
+        # Tab 3: Poses
+        poses_tab = QWidget()
+        poses_tab_layout = QVBoxLayout(poses_tab)
+        
         # Poses group
         poses_group = QGroupBox("Poses")
         poses_layout = QVBoxLayout(poses_group)
@@ -221,7 +231,7 @@ class KritaMultiModelDocker(DockWidget):
         poses_layout.addLayout(pose_btn_layout)
 
         self._pose_list = QListWidget()
-        self._pose_list.setMaximumHeight(80)
+        self._pose_list.setMaximumHeight(150)
         self._pose_list.itemDoubleClicked.connect(self._on_pose_double_clicked)
         poses_layout.addWidget(self._pose_list)
 
@@ -229,13 +239,28 @@ class KritaMultiModelDocker(DockWidget):
         apply_pose_btn.clicked.connect(self._on_apply_pose)
         poses_layout.addWidget(apply_pose_btn)
 
-        left_layout.addWidget(poses_group)
+        poses_tab_layout.addWidget(poses_group)
+        poses_tab_layout.addStretch()
+        
+        self._tab_widget.addTab(poses_tab, "Poses")
 
-        # Status label
+        # Add tabs to layout
+        left_layout.addWidget(self._tab_widget)
+
+        # Always visible bottom section - Layer Sync 
+        sync_group = QGroupBox("Layer Sync")
+        sync_layout = QVBoxLayout(sync_group)
+        
+        self._sync_btn = QPushButton("📷 Sync to Layer")
+        self._sync_btn.clicked.connect(self._on_sync_to_layer)
+        self._sync_btn.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; padding: 8px;")
+        sync_layout.addWidget(self._sync_btn)
+        
+        left_layout.addWidget(sync_group)
+
+        # Status label (always visible)
         self._status_label = QLabel("No models loaded")
         left_layout.addWidget(self._status_label)
-
-        left_layout.addStretch()
 
         # Main splitter
         splitter = QSplitter(Qt.Horizontal)
@@ -258,7 +283,7 @@ class KritaMultiModelDocker(DockWidget):
             placeholder.setWordWrap(True)
             splitter.addWidget(placeholder)
 
-        splitter.setSizes([250, 500])
+        splitter.setSizes([300, 500])
         layout.addWidget(splitter)
 
         # Initialize pose list

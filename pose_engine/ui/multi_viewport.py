@@ -1002,26 +1002,25 @@ class MultiViewport3D(QOpenGLWidget):
                 self._movement_drag_start_pos = bone.get_world_position()
                 self._movement_drag_prev_pos = self._movement_drag_start_pos
                 return True
-        elif self._gizmo_mode == "scale":
-            if self._scale_gizmo:
-                start_point = self._scale_gizmo.get_point_on_axis(
-                    (mouse_pos.x(), mouse_pos.y()),
-                    self._gizmo_hover_axis,
-                    gizmo_pos,
-                    gizmo_scale,
-                    view,
-                    proj,
-                    viewport
-                )
-                if start_point is None:
-                    return False
+        elif self._gizmo_mode == "scale" & self._scale_gizmo:
+            start_point = self._scale_gizmo.get_point_on_axis(
+                (mouse_pos.x(), mouse_pos.y()),
+                self._gizmo_hover_axis,
+                gizmo_pos,
+                gizmo_scale,
+                view,
+                proj,
+                viewport
+            )
+            if start_point is None:
+                return False
 
-                self._gizmo_state = "dragging"
-                self._gizmo_drag_axis = self._gizmo_hover_axis
-                self._gizmo_drag_start_point = start_point
-                self._gizmo_drag_prev_point = start_point
-                self._scale_drag_start_scale = model.transform.scale
-                return True
+            self._gizmo_state = "dragging"
+            self._gizmo_drag_axis = self._gizmo_hover_axis
+            self._gizmo_drag_start_point = start_point
+            self._gizmo_drag_prev_point = start_point
+            self._scale_drag_start_scale = model.transform.scale
+            return True
 
         return False
 

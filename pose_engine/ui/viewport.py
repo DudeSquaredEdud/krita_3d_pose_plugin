@@ -290,14 +290,33 @@ class Viewport3D(QOpenGLWidget):
         return None
 
     def get_gizmo_scale(self) -> float:
-        """Calculate appropriate gizmo scale based on camera distance."""
+        """
+        Calculate appropriate gizmo scale based on camera distance.
+        
+        Uses adaptive sizing to ensure consistent screen-space size
+        regardless of zoom level, making the gizmo easier to interact with.
+        """
         gizmo_pos = self.get_gizmo_position()
         if gizmo_pos is None:
             return 0.1
 
         cam_pos = self._camera.get_position()
         distance = (cam_pos - gizmo_pos).length()
-        return distance * 0.15  # Adjust multiplier for desired size
+        
+        # Base scale factor - larger for better visibility
+        base_scale = 0.2
+        
+        # Minimum and maximum scale limits for usability
+        min_scale = 0.05
+        max_scale = 2.0
+        
+        # Calculate scale with distance
+        scale = distance * base_scale
+        
+        # Clamp to reasonable limits
+        scale = max(min_scale, min(max_scale, scale))
+        
+        return scale
 
     # -------------------------------------------------------------------------
     # OpenGL Implementation
@@ -305,7 +324,8 @@ class Viewport3D(QOpenGLWidget):
 
     def initializeGL(self) -> None:
         """Initialize OpenGL resources."""
-        glClearColor(0.2, 0.2, 0.2, 1.0)
+        # Use dark background matching the UI theme (#2C3E50)
+        glClearColor(0.173, 0.243, 0.314, 1.0)  # #2C3E50 -> RGB normalized
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
