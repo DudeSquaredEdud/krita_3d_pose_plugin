@@ -31,7 +31,9 @@ from ..scene import Scene
 from ..model_instance import ModelInstance
 from ..renderer.gl_renderer import GLRenderer
 from ..renderer.skeleton_viz import SkeletonVisualizer
-from ..renderer.gizmo import RotationGizmo, MovementGizmo, ScaleGizmo
+from ..renderer.rotation_gizmo import RotationGizmo
+from ..renderer.movement_gizmo import MovementGizmo
+from ..renderer.scale_gizmo import ScaleGizmo
 from ..renderer.joint_renderer import JointRenderer
 from ..settings.settings import PluginSettings
 from ..camera import CameraBookmarkManager, Camera

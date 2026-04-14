@@ -213,12 +213,12 @@ def create_arrow_geometry(length: float, radius: float,
     return np.array(vertices, dtype=np.float32), np.array(normals, dtype=np.float32)
 
 
-def compile_gizmo_shaders() -> Optional[shaders.Program]:
+def compile_gizmo_shaders() -> Optional[int]:
     """
     Compile the gizmo shaders.
-    
+
     Returns:
-        Compiled shader program, or None on failure
+        Compiled shader program ID (int), or None on failure
     """
     try:
         vertex_shader = shaders.compileShader(GIZMO_VERTEX_SHADER, GL_VERTEX_SHADER)
